@@ -10,13 +10,11 @@ import LocationDetails from './LocationDetails';
 import LoadingScreen from './LoadingScreen';
 
 const MapComponent = () => {
-    const [location, setLocation] = useState<any>(null);
-    const [address, setAddress] = useState<string>('');
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const mapRef = useRef<MapView | null>(null);
-    const [userLocation, setUserLocation] = useState<Location.LocationObjectCoords | null>(null); // Your actual GPS
-    const [searchedLocation, setSearchedLocation] = useState<Location.LocationObjectCoords | null>(null); // Search result
+    const [userLocation, setUserLocation] = useState<Location.LocationObjectCoords | null>(null);
+    const [searchedLocation, setSearchedLocation] = useState<Location.LocationObjectCoords | null>(null);
     const [searchedAddress, setSearchedAddress] = useState<string>('');
 
     useEffect(() => {
@@ -32,19 +30,22 @@ const MapComponent = () => {
             setUserLocation(userLoc.coords);
 
             const addr = await getAddressFromCoordinates(userLoc.coords.latitude, userLoc.coords.longitude);
-            setSearchedAddress(addr); // optional: show your location on initial load
+            setSearchedAddress(addr);
             setLoading(false);
         };
 
         requestLocationPermission();
     }, []);
 
-    const recenterMap = () => {
-        if (location) {
+    const recenterMap = async () => {
+        setSearchQuery('');
+        if (userLocation) {
+            const addr = await getAddressFromCoordinates(userLocation.latitude, userLocation.longitude);
+            setSearchedAddress(addr);
             mapRef.current?.animateToRegion(
                 {
-                    latitude: location.latitude,
-                    longitude: location.longitude,
+                    latitude: userLocation?.latitude,
+                    longitude: userLocation?.longitude,
                     latitudeDelta: 0.01,
                     longitudeDelta: 0.01,
                 } as Region,
@@ -53,7 +54,7 @@ const MapComponent = () => {
         }
     };
 
-    if (loading || !location) {
+    if (loading) {
         return <LoadingScreen />;
     }
 
@@ -102,7 +103,7 @@ const MapComponent = () => {
                 }}
                 setSearchedAddress={setSearchedAddress}
             />
-            <LocationDetails location={location} address={address} />
+            <LocationDetails location={searchedLocation} address={searchedAddress} />
             <CustomButton buttonFunction={recenterMap} />
         </View>
     );
