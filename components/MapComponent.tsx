@@ -1,4 +1,3 @@
-// app/components/LocationTracker.tsx
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Alert, Text } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
